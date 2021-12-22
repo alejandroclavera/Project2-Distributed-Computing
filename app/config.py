@@ -21,6 +21,7 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
+    JSON_SORT_KEYS = False
 
 
 class TestingConfig(Config):
