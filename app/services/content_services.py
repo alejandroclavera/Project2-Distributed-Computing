@@ -25,3 +25,23 @@ def post_new_content(request_form):
     # Store the new content in the database
     content.save()
     return content
+
+
+def get_content_by_id(content_id):
+    return Content.query.get(content_id)
+
+
+def modify_content(content_id, form):
+    content = Content.query.get(content_id)
+    if content is None:
+        return None
+    content.update(form)
+    return content
+
+
+def delete_content_by_id(content_id):
+    content = Content.query.get(content_id)
+    if content is None:
+        return False
+    content.delete()
+    return True

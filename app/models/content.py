@@ -1,5 +1,6 @@
 from . import db
 
+
 class Content(db.Model):
     __tablename__ = 'content'
 
@@ -14,11 +15,21 @@ class Content(db.Model):
     def save(self):
         db.session().add(self)
         db.session.commit()
-    
+
+    def delete(self):
+        db.session().delete(self)
+        db.session.commit()
+
+    def update(self, form):
+        for key, value in form.items():
+            if key in self.__dict__:
+                setattr(self, key, value)
+        db.session.commit()
+
     @property
     def serialize(self):
         return {
             'id': self.id,
-            'title' : self.title,
+            'title': self.title,
             'description': self.description
         }
