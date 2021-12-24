@@ -1,11 +1,20 @@
-from ..models.content import Content
+from ..models.content import Content, Keyword
 
+find_keys = ['title', 'description', 'keyword', 'value']
 
 def find_content(search_args):
     """
     Find a contents 
     """
-    contents = Content.query.filter_by(**search_args)
+    # Check if all search arguments are valids
+    if not all(arg in find_keys for arg in search_args):
+        return None
+
+    # Find the contents
+    if 'keyword' in search_args or 'value' in search_args:
+        contents = Content.query.join(Keyword).filter_by(**search_args)
+    else: 
+        contents = Content.query.filter_by(**search_args)
     return contents
 
 
@@ -13,6 +22,8 @@ def post_new_content(request_form):
     """
     Create a new Content and stored it in the database
     """
+    if request_form is None:
+        return None
     # Check the request form
     if 'title' not in request_form:
         return None
@@ -21,7 +32,10 @@ def post_new_content(request_form):
     # Create a new content
     title = request_form['title']
     description = request_form['description']
-    content = Content(title, description)
+    if 'keywords' in request_form:
+        content = Content(title, description, keywords=request_form['keywords'])
+    else:
+        content = Content(title, description)
     # Store the new content in the database
     content.save()
     return content
