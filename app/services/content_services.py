@@ -1,6 +1,9 @@
+import json
+from io import BytesIO
 from ..models.content import Content, Keyword
 
 find_keys = ['title', 'description', 'keyword', 'value']
+
 
 def find_content(search_args):
     """
@@ -13,7 +16,7 @@ def find_content(search_args):
     # Find the contents
     if 'keyword' in search_args or 'value' in search_args:
         contents = Content.query.join(Keyword).filter_by(**search_args)
-    else: 
+    else:
         contents = Content.query.filter_by(**search_args)
     return contents
 
@@ -59,3 +62,23 @@ def delete_content_by_id(content_id):
         return False
     content.delete()
     return True
+
+
+def get_content_file_by_id(content_id):
+    content = get_content_by_id(content_id)
+    if not content:
+        return None
+    content_file = BytesIO()
+    content_file.write(json.dumps(content.serialize).encode())
+    content_file.seek(0)
+    return content_file
+
+
+def get_all_content_file():
+    contents = Content.query.all()
+    if not contents:
+        return None
+    contents_file = BytesIO()
+    contents_file.write(json.dumps([content.serialize for content in contents]).encode())
+    contents_file.seek(0)
+    return contents_file
