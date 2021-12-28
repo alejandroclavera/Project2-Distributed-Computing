@@ -1,3 +1,5 @@
+import json
+from io import BytesIO
 from ..models.content import Content
 
 
@@ -45,3 +47,23 @@ def delete_content_by_id(content_id):
         return False
     content.delete()
     return True
+
+
+def get_content_file_by_id(content_id):
+    content = get_content_by_id(content_id)
+    if content is None:
+        return None
+    content_file = BytesIO()
+    content_file.write(json.dumps(content.serialize).encode())
+    content_file.seek(0)
+    return content_file
+
+
+def get_all_content_file():
+    contents = Content.query.all()
+    if not contents:
+        return None
+    content_file = BytesIO()
+    content_file.write(json.dumps([content.serialize for content in contents]).encode())
+    content_file.seek(0)
+    return content_file
