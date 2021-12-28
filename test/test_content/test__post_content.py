@@ -1,6 +1,3 @@
-import os
-
-from flask import json
 from app import create_app
 from . import content_url_api
 

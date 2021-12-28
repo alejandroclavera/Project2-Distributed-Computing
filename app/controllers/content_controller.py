@@ -12,7 +12,7 @@ def find_content():
     contents = content_services.find_content(request.args)
     if contents is None:
         return jsonify({'error_message': 'Bad request'}), 400
-    return jsonify([content.serialize for content in contents])
+    return jsonify([content.serialize for content in contents]), 200
 
 
 @content_controller.route('/', methods=['POST'])
