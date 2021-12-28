@@ -7,9 +7,13 @@ from .controllers.content_controller import content_controller
 
 migrate = Migrate()
 
-def create_app():
+def create_app(app_settings=None):
     app = Flask(__name__)
-    app.config.from_object(app_config[os.environ['APP_SETTINGS']])
+    # Load configurations
+    if not app_settings:
+        app.config.from_object(app_config[os.environ['APP_SETTINGS']])
+    else:
+        app.config.from_object(app_config[app_settings])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     migrate.init_app(app, db)

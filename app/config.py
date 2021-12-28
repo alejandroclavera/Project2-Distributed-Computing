@@ -26,8 +26,12 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
+    DEBUG = True
+    JSON_SORT_KEYS = False
+    SQLALCHEMY_DATABASE_URI = 'postgresql://admin:admin@localhost:5432/mytube_db'
 
 app_config = {
     'development': DevelopmentConfig,
-    'production': ProductionConfig
+    'testing': TestingConfig,
+    'production': ProductionConfig,
 }
