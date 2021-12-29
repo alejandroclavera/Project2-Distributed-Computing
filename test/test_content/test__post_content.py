@@ -1,14 +1,27 @@
+import pytest
 from app import create_app
+from app.models import db
+from app.models.content import Content
 from . import content_url_api
 
 test_contets = [
     {'title':'title1', 'description': 'description1'},   
-    {'title':'title2', 'description': 'description2'}
+    {'title':'title2', 'description': 'description2', 'keywords':[
+        {
+            'keyword':'key1',
+            'value': 'value1'
+        },
+        {
+            'keyword':'key2',
+            'value': 'value2'
+        }
+    ]}
 ]
 
 bad_contents_post = [
     {'tile':'not description post'},
     {'description': 'post without tile'},
+    {'title': 'bad keywords', 'descripion':'', 'keywords':[{'keyword':''}]},
     {}
 ]
 
@@ -19,6 +32,8 @@ def equals(content_1, content_2):
         return False
     elif content_1['description'] != content_2['description']:
         return False
+    elif 'keywords' in content_1 and 'keywords' in content_2:
+        return content_1['keywords'] == content_2['keywords']
     return True
 
 def check_keys(content):
@@ -27,8 +42,24 @@ def check_keys(content):
             return False
     return True
 
-def test_post__single_content():
+@pytest.fixture
+def setup_test():
+    # Create app
     app = create_app(app_settings='testing')
+    db.init_app(app)
+
+    with app.app_context():
+        # Add contents
+        db.create_all()
+        content_list = []
+        yield app
+        # Remove contents
+        db.session.remove()
+        db.drop_all()
+
+
+def test_post__single_content(setup_test):
+    app = setup_test    
     with app.test_client() as client:
         response = client.post(content_url_api, json=test_contets[0])
         json_content = response.get_json()
@@ -46,8 +77,18 @@ def test_bad_post_content():
             response = client.post(content_url_api, json=bad_content)
             # Check the status code
             assert response.status_code == 400
+        # Check response without json body
+        response = client.post(content_url_api)
+        assert response.status_code == 400
 
-def test_multiple_post():
-    app = create_app(app_settings='testing')
+def test_multiple_post(setup_test):
+    app = setup_test
     with app.test_client() as client:
-        pass
+        for content_to_test in test_contets:
+            response = client.post(content_url_api, json=content_to_test)
+            assert response.status_code == 200
+
+        # Check if all contets are registered in the ws
+        contents = Content.query.all()
+        for index, content in enumerate(test_contets):
+            assert equals(content, contents[index].serialize)

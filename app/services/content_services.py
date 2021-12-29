@@ -36,6 +36,8 @@ def post_new_content(request_form):
     title = request_form['title']
     description = request_form['description']
     if 'keywords' in request_form:
+        if not Content.are_valid_keywords(request_form['keywords']):
+            return None
         content = Content(title, description, keywords=request_form['keywords'])
     else:
         content = Content(title, description)

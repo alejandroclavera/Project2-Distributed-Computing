@@ -28,7 +28,7 @@ class TestingConfig(Config):
     TESTING = True
     DEBUG = True
     JSON_SORT_KEYS = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://admin:admin@localhost:5432/mytube_db'
+    SQLALCHEMY_DATABASE_URI = os.environ['TEST_DATABASE_URL']
 
 app_config = {
     'development': DevelopmentConfig,

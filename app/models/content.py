@@ -59,11 +59,21 @@ class Content(db.Model):
             'keywords': [keyword.serialize for keyword in self.keywords]
         }
 
+    @staticmethod
+    def are_valid_keywords(keywords: list):
+        if keywords is None:
+            return False
+        for keyword in keywords:
+            if not 'keyword' in keyword:
+                return False
+            elif not 'value' in keyword:
+                return False
+        return True
+
 class Keyword(db.Model):
     owner = db.Column(db.Integer, db.ForeignKey('content.id'), primary_key=True)
     keyword = db.Column(db.String(), primary_key=True)
     value = db.Column(db.String())
-
 
     def delete(self):
         db.session.delete(self)

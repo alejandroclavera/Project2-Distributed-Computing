@@ -29,6 +29,7 @@ def setup_test():
 
     with app.app_context():
         # Add contents
+        db.create_all()
         content_list = []
         for content_to_add in test_contents:
             content = Content(*content_to_add.values())
@@ -36,8 +37,8 @@ def setup_test():
             content_list.append(content)
         yield app, content_list
         # Remove contents
-        db.session.query(Content).delete()
-        db.session.commit()
+        db.session.remove()
+        db.drop_all()
 
 def test_content_id(setup_test):
     app, content_list = setup_test
