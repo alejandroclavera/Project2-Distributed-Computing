@@ -3,6 +3,9 @@ from app.models.content import Content
 from test import setup_app
 from . import content_url_api
 
+#######################################
+#   TEST modify content information   #
+#######################################
 test_contents = [
     {'title': 'title1', 'description': 'description1'},
     {'title': 'title2', 'description': 'description2'},

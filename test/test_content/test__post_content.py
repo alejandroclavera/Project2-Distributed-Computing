@@ -2,8 +2,12 @@ import pytest
 from app import create_app
 from app.models import db
 from app.models.content import Content
+from test import setup_app
 from . import content_url_api
 
+###################################
+#   TEST add content information  #
+###################################
 test_contets = [
     {'title':'title1', 'description': 'description1'},   
     {'title':'title2', 'description': 'description2', 'keywords':[
@@ -42,24 +46,9 @@ def check_keys(content):
             return False
     return True
 
-@pytest.fixture
-def setup_test():
-    # Create app
-    app = create_app(app_settings='testing')
-    db.init_app(app)
 
-    with app.app_context():
-        # Add contents
-        db.create_all()
-        content_list = []
-        yield app
-        # Remove contents
-        db.session.remove()
-        db.drop_all()
-
-
-def test_post__single_content(setup_test):
-    app = setup_test    
+def test_post__single_content(setup_app):
+    app = setup_app    
     with app.test_client() as client:
         response = client.post(content_url_api, json=test_contets[0])
         json_content = response.get_json()
@@ -70,8 +59,9 @@ def test_post__single_content(setup_test):
         # Check if the json is the expected
         assert equals(test_contets[0], json_content)
 
-def test_bad_post_content():
-    app = create_app(app_settings='testing')
+
+def test_bad_post_content(setup_app):
+    app = setup_app
     with app.test_client() as client:
         for bad_content in bad_contents_post:
             response = client.post(content_url_api, json=bad_content)
@@ -81,8 +71,9 @@ def test_bad_post_content():
         response = client.post(content_url_api)
         assert response.status_code == 400
 
-def test_multiple_post(setup_test):
-    app = setup_test
+
+def test_multiple_post(setup_app):
+    app = setup_app
     with app.test_client() as client:
         for content_to_test in test_contets:
             response = client.post(content_url_api, json=content_to_test)

@@ -3,6 +3,9 @@ from app.models.content import Content, Keyword
 from test import setup_app 
 from . import content_url_api
 
+#######################################
+#   TEST delete content information   #
+#######################################
 test_contents = [
     {'title': 'title1', 'description': 'description1', 'keywords':[
         {'keyword':'key', 'value':'val'}, 

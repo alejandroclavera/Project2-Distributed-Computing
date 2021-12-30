@@ -13,11 +13,17 @@ def find_content(search_args):
     if not all(arg in find_keys for arg in search_args):
         return None
 
-    # Find the contents
     if 'keyword' in search_args or 'value' in search_args:
-        contents = Content.query.join(Keyword).filter_by(**search_args)
+        content_args, keyword_args = {}, {}
+        for arg in search_args.items():
+            if arg[0] == 'keyword' or arg[0] == 'value':
+                keyword_args[arg[0]] = arg[1]
+            else:
+                content_args[arg[0]] = arg[1]
+        contents = Content.query.filter_by(**content_args).join(Keyword).filter_by(**keyword_args)
     else:
         contents = Content.query.filter_by(**search_args)
+    
     return contents
 
 
