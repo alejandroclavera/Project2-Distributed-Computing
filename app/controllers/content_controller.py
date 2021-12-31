@@ -23,7 +23,7 @@ def add_new_content():
     content = content_services.post_new_content(request.json)
     if content is None:
         return jsonify({'error_message': 'can\'t create new content'}), 400
-    return jsonify(content.serialize), 200
+    return jsonify(content.serialize), 201
 
 
 @content_controller.route('/<id>', methods=['GET'])
@@ -76,7 +76,7 @@ def download_content_info(id):
 @content_controller.route('/download', methods=['GET'])
 def download_all_content_info():
     """
-    Download all the information
+    Download all content information
     """
     content_to_download = content_services.get_all_content_file()
     if not content_to_download:

@@ -17,7 +17,7 @@ class Content(db.Model):
         self.description = description
         self.__keywords__ = keywords
 
-    def __update_keywords__(self, keywords):
+    def __update_keywords(self, keywords):
         for keyword_dict in keywords:
             key = keyword_dict['keyword']
             value = keyword_dict['value']
@@ -43,7 +43,7 @@ class Content(db.Model):
             if key in self.__dict__ and key != 'keywords':
                 setattr(self, key, value)
             elif key == 'keywords':
-                self.__update_keywords__(form['keywords'])
+                self.__update_keywords(form['keywords'])
         db.session.commit()
 
     def delete(self):

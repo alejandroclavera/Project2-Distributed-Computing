@@ -13,9 +13,12 @@ def find_content(search_args):
     if not all(arg in find_keys for arg in search_args):
         return None
 
+    # Filter the contents 
     if 'keyword' in search_args or 'value' in search_args:
+        # Case the filter contain keyword filtering
         content_args, keyword_args = {}, {}
         for arg in search_args.items():
+            # Split the search arguments in content search args and keyword search args
             if arg[0] == 'keyword' or arg[0] == 'value':
                 keyword_args[arg[0]] = arg[1]
             else:

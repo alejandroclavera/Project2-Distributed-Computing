@@ -107,6 +107,7 @@ def test_search_by_keywords(setup_test):
         assert equals(test_contents[2], content_json[0])
         assert equals(test_contents[3], content_json[1])  
 
+
 def test_multiple_search(setup_test):
     app, _ = setup_test
     url_request = content_url_api + '?title={0}&description={1}&keyword={2}&value={3}' 

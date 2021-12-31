@@ -40,6 +40,7 @@ def equals(content_1, content_2):
         return content_1['keywords'] == content_2['keywords']
     return True
 
+
 def check_keys(content):
     for key in keys_to_check:
         if key not in content:
@@ -53,7 +54,7 @@ def test_post__single_content(setup_app):
         response = client.post(content_url_api, json=test_contets[0])
         json_content = response.get_json()
         # Check the response code
-        assert response.status_code == 200
+        assert response.status_code == 201
         # Check if the json response contain all keys
         assert check_keys(json_content)
         # Check if the json is the expected
@@ -77,7 +78,7 @@ def test_multiple_post(setup_app):
     with app.test_client() as client:
         for content_to_test in test_contets:
             response = client.post(content_url_api, json=content_to_test)
-            assert response.status_code == 200
+            assert response.status_code == 201
 
         # Check if all contets are registered in the ws
         contents = Content.query.all()

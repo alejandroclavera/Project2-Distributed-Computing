@@ -70,6 +70,3 @@ def test_delete_empty_db(setup_app):
     with app.test_client() as client:
         response = client.delete(content_url_api + '1')
         assert response.status_code == 404
-
-
-        
