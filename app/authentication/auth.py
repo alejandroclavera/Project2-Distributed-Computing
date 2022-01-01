@@ -26,8 +26,7 @@ class Auth:
                 os.getenv('JWT_SECRET_KEY'),
                 'HS256'
             )
-        except Exception as E:
-            print(E)
+        except Exception as e:
             return None
 
     @staticmethod

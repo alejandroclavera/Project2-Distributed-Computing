@@ -27,6 +27,7 @@ def test_create_new_user(setup_app):
         assert user.user_name == test_user['user_name']
         assert user.check_hash(test_user['password'])
 
+
 def test_bad_request(setup_app):
     app = setup_app
     with app.test_client() as client:
