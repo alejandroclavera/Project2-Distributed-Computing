@@ -2,7 +2,7 @@ import json
 from io import BytesIO
 from ..models.content import Content, Keyword
 
-find_keys = ['title', 'description', 'keyword', 'value']
+find_keys = ['title', 'description', 'keyword', 'value', 'partial']
 
 
 def find_content(search_args):
@@ -12,6 +12,24 @@ def find_content(search_args):
     # Check if all search arguments are valids
     if not all(arg in find_keys for arg in search_args):
         return None
+    
+    query = Content.query
+
+    # Check the search it is partial by description
+    if 'partial' in search_args:
+        # Check if the search args have the keyword description
+        if 'description' not in search_args:
+            return None
+        # Convert search_args to mutable dic
+        args = {}
+        args.update(search_args)
+        search_args = args
+        # Check must apply a partial search by description
+        if search_args['partial'] == 'true':
+            query = query.filter(Content.description.contains(search_args['description']))
+            search_args.pop('description')
+        # Remove the partial arg from the search_args
+        search_args.pop('partial')
 
     # Filter the contents 
     if 'keyword' in search_args or 'value' in search_args:
@@ -23,11 +41,11 @@ def find_content(search_args):
                 keyword_args[arg[0]] = arg[1]
             else:
                 content_args[arg[0]] = arg[1]
-        contents = Content.query.filter_by(**content_args).join(Keyword).filter_by(**keyword_args)
+        query = query.filter_by(**content_args).join(Keyword).filter_by(**keyword_args)
     else:
-        contents = Content.query.filter_by(**search_args)
+        query = query.filter_by(**search_args)
     
-    return contents
+    return query
 
 
 def post_new_content(request_form):

@@ -124,3 +124,53 @@ def test_multiple_search(setup_test):
         response = client.get(url_request.format('not found title', 'not_found description', '', ''))
         assert response.status_code == 200
         assert len(response.get_json()) == 0
+
+
+def test_simple_partial_search(setup_test):
+    app, content_list = setup_test
+    url_to_test = content_url_api + '?description=description&partial=true'
+    url_to_test_not_match = content_url_api + '?description=not&partial=true'
+    with app.test_client() as client:
+        response = client.get(url_to_test)
+        assert response.status_code == 200
+        contents_json = response.get_json()
+        assert len(contents_json) == 2
+        for content in contents_json:
+            id = content['id'] - 1
+            assert equals(content_list[id].serialize, content)
+        # Check not match
+        response = client.get(url_to_test_not_match)
+        assert response.status_code == 200
+        assert len(response.get_json()) == 0
+
+def test_multiple_partial_search(setup_test):
+    app, content_list = setup_test
+    # Test with title
+    url_to_test_1 = content_url_api + '?title=titlekey1&description=description&partial=true'
+    # Test with keyword
+    url_to_test_2 = content_url_api + '?keyword=testkey2&value=aa&description=description&partial=true'
+    # Test with title and keyword 
+    url_to_test_3 = content_url_api + '?title=titlekey1&keyword=testkey2&value=aa&description=description&partial=true' 
+
+    urls_to_test = [url_to_test_1, url_to_test_2, url_to_test_3] 
+    with app.test_client() as client:
+        for url_to_test in urls_to_test:
+            response = client.get(url_to_test_1)
+            assert response.status_code == 200
+            contents_json = response.get_json()
+            assert len(contents_json) == 1
+            id = contents_json[0]['id']
+            assert equals(content_list[id - 1].serialize, contents_json[0]) 
+
+def test_bad_partial_search(setup_test):
+    app, _ = setup_test
+    with app.test_client() as client:
+        # Check not description arg
+        response = client.get(content_url_api + '?partial=true')
+        assert response.status_code == 400
+    
+       
+
+
+
+
