@@ -54,7 +54,7 @@ def equals(content_1, content_2):
 @pytest.fixture
 def setup_test(setup_app):
     # Create app
-    app = setup_app
+    client = setup_app
     user = User('test_user', 'pssw')
     user.save()
     content_list = []
@@ -65,66 +65,64 @@ def setup_test(setup_app):
         user.add_content(content)
         content_list.append(content)
     headers = {'user-token': Auth.generate_token(user.id)}
-    return app, headers, content_list
+    return client, headers, content_list
+
 
 @pytest.fixture
 def setup_emptydb_test(setup_app):
-    app = setup_app
+    client = setup_app
     user = User('test_user', 'pssw')
     user.save()
     headers = {'user-token': Auth.generate_token(user.id)}
-    return app, headers
+    return client, headers
+
 
 def test_put_contents(setup_test):
-    app, headers, content_list = setup_test
-    print(headers)
-    with app.test_client() as client:
-        for index, content in enumerate(content_list):
-            content_modification = test_update_info[index]
-            response = client.put(content_url_api + str(content.id), json=content_modification, headers=headers)
-            assert response.status_code == 200
-            modificated_content_json = response.get_json()
-            modificated_content = Content.query.get(content.id)
-            assert not modificated_content is None
-            assert equals(test_update_info_expected[index], modificated_content_json)
-            assert equals(test_update_info_expected[index], modificated_content.serialize)
+    client, headers, content_list = setup_test
+    for index, content in enumerate(content_list):
+        content_modification = test_update_info[index]
+        response = client.put(content_url_api + str(content.id), json=content_modification, headers=headers)
+        assert response.status_code == 200
+        modificated_content_json = response.get_json()
+        modificated_content = Content.query.get(content.id)
+        assert not modificated_content is None
+        assert equals(test_update_info_expected[index], modificated_content_json)
+        assert equals(test_update_info_expected[index], modificated_content.serialize)
 
 
 def test_put_not_owner_user(setup_test):
-    app, _, content_list = setup_test
+    client, _, content_list = setup_test
     user2 = User('user2', 'passw') 
     user2.save()
     headers = {'user-token': Auth.generate_token(user2.id)}
-    with app.test_client() as client:
-        for index, content in enumerate(content_list):
-            content_modification = test_update_info[index]
-            response = client.put(content_url_api + str(content.id), json=content_modification, headers=headers)
-            assert response.status_code == 403
+    for index, content in enumerate(content_list):
+        content_modification = test_update_info[index]
+        response = client.put(content_url_api + str(content.id), json=content_modification, headers=headers)
+        assert response.status_code == 403
 
         
 def test_put_in_empty_dabase(setup_emptydb_test):
-    app, headers = setup_emptydb_test
-    with app.test_client() as client:
-        response = client.put(content_url_api + '1', json=test_update_info[0], headers=headers)
-        assert response.status_code == 404
+    client, headers = setup_emptydb_test
+    response = client.put(content_url_api + '1', json=test_update_info[0], headers=headers)
+    assert response.status_code == 404
 
 
 def test_put_not_registered_content(setup_test):
-    app, headers, content_list = setup_test
-    with app.test_client() as client:
-        not_registered_id = str(content_list[-1].id + 1)
-        response = client.put(content_url_api + not_registered_id , json=test_update_info[0], headers=headers)
-        assert response.status_code == 404
+    client, headers, content_list = setup_test
+    not_registered_id = str(content_list[-1].id + 1)
+    response = client.put(content_url_api + not_registered_id , json=test_update_info[0], headers=headers)
+    assert response.status_code == 404
 
 
 def test_bad_user_token(setup_test):
-    app, headers, _ = setup_test
-    with app.test_client() as client:
-        # Test without user token
-        response = client.put(content_url_api + '1' , json=test_update_info[0])
-        assert response.status_code == 401
-        # Test bad user token
-        bad_usertoken_header = {'user-token': 'badtoken'}
-        response = client.put(content_url_api + '1' , json=test_update_info[0], headers=bad_usertoken_header)
-        assert response.status_code == 400
+    client, headers, _ = setup_test
+    
+    # Test without user token
+    response = client.put(content_url_api + '1' , json=test_update_info[0])
+    assert response.status_code == 401
+    
+    # Test bad user token
+    bad_usertoken_header = {'user-token': 'badtoken'}
+    response = client.put(content_url_api + '1' , json=test_update_info[0], headers=bad_usertoken_header)
+    assert response.status_code == 400
 

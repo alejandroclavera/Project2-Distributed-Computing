@@ -1,3 +1,4 @@
+from flask import cli
 import pytest
 from app import create_app
 from app.models import db
@@ -11,8 +12,8 @@ def setup_app():
     with app.app_context():
         # Add contents
         db.create_all()
-        content_list = []
-        yield app
+        with app.test_client() as client:
+            yield client 
         # Remove contents
         db.session.remove()
         db.drop_all()

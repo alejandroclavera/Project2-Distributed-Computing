@@ -73,7 +73,6 @@ def post_new_content(request_form):
         content = Content(title, description, user)
     # Store the new content in the database
     content.save()
-    user.add_content(content)
     return content
 
 
