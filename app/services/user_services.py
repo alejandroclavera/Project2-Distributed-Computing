@@ -1,6 +1,3 @@
-
-
-from os import uname
 from sqlalchemy.sql.base import NO_ARG
 from app.models.user import User
 
@@ -44,3 +41,10 @@ def autenticate_user(request_json):
     if not user.check_hash(request_json['password']):
         return None
     return user
+
+
+def get_user_contents(user_id):
+    user = User.get_user_by_id(user_id)
+    if user is None:
+        return None
+    return user.contents

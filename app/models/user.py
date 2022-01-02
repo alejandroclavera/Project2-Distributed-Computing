@@ -9,6 +9,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(), nullable=False)
     password = db.Column(db.String(), nullable=False)
+    contents = db.relationship('Content', cascade='all, delete, delete-orphan', backref='user', lazy=True)
 
     def __init__(self, name, password):
         self.user_name = name
@@ -17,6 +18,9 @@ class User(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    def add_content(self, new_content):
+        self.contents.append(new_content)
 
     def __generate_hash(self, password):
         return generate_password_hash(password)

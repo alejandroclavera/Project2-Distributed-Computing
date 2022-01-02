@@ -1,7 +1,6 @@
 from flask import Blueprint, request, send_file
 from flask.json import jsonify
-
-from app.models import content
+from app.authentication.auth import Auth
 from ..services import content_services
 
 content_controller = Blueprint('content_controller', __name__)
@@ -16,6 +15,7 @@ def find_content():
 
 
 @content_controller.route('/', methods=['POST'])
+@Auth.auth_required
 def add_new_content():
     """
     Registry a new content in the WS
@@ -38,24 +38,30 @@ def get_content_info(id):
 
 
 @content_controller.route('/<id>', methods=['PUT'])
+@Auth.auth_required
 def modify_content(id):
     """
     Modify the content with the id
     """
-    content = content_services.modify_content(id, request.json)
-    if content is None:
+    content, status_code = content_services.modify_content(id, request.json)
+    if status_code == 404:
         return jsonify({'error_message': f'not found the content with the id {id}'}), 404
+    elif status_code == 403:
+        return jsonify({'error_message': f'can\'t modify the content of other user'}), 403
     return jsonify(content.serialize), 200
 
 
 @content_controller.route('/<id>', methods=['DELETE'])
+@Auth.auth_required
 def delete_content(id):
     """
     Delete the content of the id
     """
-    content_is_deleted = content_services.delete_content_by_id(id)
-    if not content_is_deleted:
-        return jsonify({'error_message': f'not found the content for delete with the id {id}'}), 404
+    status_code = content_services.delete_content_by_id(id)
+    if status_code == 404:
+        return jsonify({'error_message': f'not found the content with the id {id}'}), 404
+    elif status_code == 403:
+        return jsonify({'error_message': f'can\'t modify the content of other user'}), 403
     return jsonify({'message': 'Content deleted'}), 200
 
 

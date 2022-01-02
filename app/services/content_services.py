@@ -1,6 +1,8 @@
 import json
 from io import BytesIO
 from ..models.content import Content, Keyword
+from flask import g
+from app.models.user import User
 
 find_keys = ['title', 'description', 'keyword', 'value', 'partial']
 
@@ -62,14 +64,16 @@ def post_new_content(request_form):
     # Create a new content
     title = request_form['title']
     description = request_form['description']
+    user = User.get_user_by_id(g.user.get('id'))
     if 'keywords' in request_form:
         if not Content.are_valid_keywords(request_form['keywords']):
             return None
-        content = Content(title, description, keywords=request_form['keywords'])
+        content = Content(title, description, user, keywords=request_form['keywords'])
     else:
-        content = Content(title, description)
+        content = Content(title, description, user)
     # Store the new content in the database
     content.save()
+    user.add_content(content)
     return content
 
 
@@ -80,17 +84,21 @@ def get_content_by_id(content_id):
 def modify_content(content_id, form):
     content = Content.query.get(content_id)
     if content is None:
-        return None
+        return None, 404
+    if g.user.get('id') != content.owner:
+        return None, 403
     content.update(form)
-    return content
+    return content, 200
 
 
 def delete_content_by_id(content_id):
     content = Content.query.get(content_id)
     if content is None:
-        return False
+        return 404
+    if g.user.get('id') != content.owner:
+        return 403
     content.delete()
-    return True
+    return 200
 
 
 def get_content_file_by_id(content_id):

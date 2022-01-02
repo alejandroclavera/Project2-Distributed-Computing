@@ -1,6 +1,8 @@
 import pytest
 from app.models.content import Content, Keyword
-from test import setup_app 
+from app.authentication.auth import Auth
+from app.models.user import User
+from test import setup_app
 from . import content_url_api
 
 #######################################

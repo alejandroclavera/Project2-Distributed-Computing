@@ -1,6 +1,4 @@
 import pytest
-from app import create_app
-from app.models import db
 from app.models.content import Content
 from test import setup_app
 from . import content_url_api

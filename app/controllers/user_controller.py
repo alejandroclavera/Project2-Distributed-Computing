@@ -6,6 +6,7 @@ from app.controllers import require_request_json_body
 
 user_controller = Blueprint('user_controller', __name__)
 
+
 @user_controller.route('/signup/', methods=['POST'])
 @require_request_json_body
 def singup():
@@ -19,6 +20,7 @@ def singup():
     token = Auth.generate_token(user.id)
     return jsonify({'user-token': token}), 200
 
+
 @user_controller.route('/signin/', methods=['POST'])
 @require_request_json_body
 def signin():
@@ -31,3 +33,11 @@ def signin():
     # Generate token    
     token = Auth.generate_token(user.id)
     return jsonify({'user-token': token}), 200
+
+
+@user_controller.route('/<id>/', methods=['GET'])
+def get_user_content_list(id):
+    contents = user_services.get_user_contents(id)
+    if contents is None:
+        return jsonify({'error_message': 'Bad request'}), 400
+    return jsonify([content.serialize for content in contents]), 200

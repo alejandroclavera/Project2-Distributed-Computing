@@ -9,12 +9,14 @@ class Content(db.Model):
     title = db.Column(db.String())
     description = db.Column(db.String())
     keywords = db.relationship('Keyword', cascade='all, delete, delete-orphan', backref='content', lazy=True)
+    owner = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     __keywords__ = []
 
-    def __init__(self, title, description, keywords=[]):
+    def __init__(self, title, description, owner, keywords=[]):
         self.title = title
         self.description = description
+        self.owner = owner.id
         self.__keywords__ = keywords
 
     def __update_keywords(self, keywords):
