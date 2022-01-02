@@ -1,3 +1,4 @@
+from werkzeug.wrappers import response
 import pytest
 from app.models.content import Content, Keyword
 from app.authentication.auth import Auth
@@ -23,18 +24,22 @@ def setup_test(setup_app):
     # Create app
     app = setup_app
     content_list = []
+    user = User('test_user', 'passwd')
+    user.save()
+    headers = {'user-token': Auth.generate_token(user.id)}
     for content_to_add in test_contents:
-        content = Content(*content_to_add.values())
+        content_to_add['owner'] = user
+        content = Content(**content_to_add)
         content.save()
         content_list.append(content)
-    return app, content_list
+    return app, headers, content_list
     
 
 def test_delete_single_content(setup_test):
-    app, content_list = setup_test
+    app, headers, content_list = setup_test
     with app.test_client() as client:
         content_id = str(content_list[0].id)
-        response = client.delete(content_url_api + content_id)
+        response = client.delete(content_url_api + content_id, headers=headers)
         # Check status code
         assert response.status_code == 200
         # Check if the number of contents is decreased
@@ -48,10 +53,10 @@ def test_delete_single_content(setup_test):
 
 
 def test__delete_multiple_contents(setup_test):
-    app, content_list = setup_test
+    app, headers, content_list = setup_test
     with app.test_client() as client:
         for content in content_list[:3]:
-            response = client.delete(content_url_api + str(content.id))
+            response = client.delete(content_url_api + str(content.id), headers=headers)
             assert response.status_code == 200
         # Check is the contents are deleted
         deleted_contents_id = [content.id for content in content_list[:3]]
@@ -61,14 +66,41 @@ def test__delete_multiple_contents(setup_test):
 
 
 def test_delete_not_registered_contents(setup_test):
-    app, content_list = setup_test
+    app, headers, content_list = setup_test
     with app.test_client() as client:
-        response = client.delete(content_url_api + str(content_list[-1].id + 1))
+        response = client.delete(content_url_api + str(content_list[-1].id + 1), headers=headers)
         assert response.status_code == 404
+
+
+def test_delete_not_owner_content(setup_test):
+    app, _, content_list = setup_test
+    user = User('test', 'passw')
+    user.save()
+    headers = {'user-token': Auth.generate_token(user.id)}
+    with app.test_client() as client:
+        for content in content_list:
+            response = client.put(content_url_api + str(content.id), headers=headers)
+            assert response.status_code == 403
 
 
 def test_delete_empty_db(setup_app):
     app = setup_app
+    user = User('test', 'passw')
+    user.save()
+    headers = {'user-token': Auth.generate_token(user.id)}
     with app.test_client() as client:
-        response = client.delete(content_url_api + '1')
+        response = client.delete(content_url_api + '1', headers=headers)
         assert response.status_code == 404
+
+
+def test_bad_user_token(setup_test):
+    app, _, _ = setup_test
+    headers= {'user-token': 'bad_user_token'}
+    with app.test_client() as client:
+        # Test without user token
+        response = client.delete(content_url_api + '1')
+        assert response.status_code == 401
+        # Test bad user token
+        bad_usertoken_header = {'user-token': 'badtoken'}
+        response = client.delete(content_url_api + '1', headers=bad_usertoken_header)
+        assert response.status_code == 400

@@ -4,7 +4,7 @@ from ..models.content import Content, Keyword
 from flask import g
 from app.models.user import User
 
-find_keys = ['title', 'description', 'keyword', 'value', 'partial']
+valid_search_args = ['title', 'description', 'keyword', 'value', 'partial']
 
 
 def find_content(search_args):
@@ -12,7 +12,7 @@ def find_content(search_args):
     Find a contents 
     """
     # Check if all search arguments are valids
-    if not all(arg in find_keys for arg in search_args):
+    if not all(arg in valid_search_args for arg in search_args):
         return None
     
     query = Content.query
@@ -82,9 +82,14 @@ def get_content_by_id(content_id):
 
 
 def modify_content(content_id, form):
+    """
+    Modify the content information from a dict form
+    """
     content = Content.query.get(content_id)
     if content is None:
         return None, 404
+    
+    # Check if the user is the owner of the content
     if g.user.get('id') != content.owner:
         return None, 403
     content.update(form)
@@ -92,9 +97,13 @@ def modify_content(content_id, form):
 
 
 def delete_content_by_id(content_id):
+    """
+    Delete the content
+    """
     content = Content.query.get(content_id)
     if content is None:
         return 404
+    # Check if the user is the owner of the content
     if g.user.get('id') != content.owner:
         return 403
     content.delete()
@@ -102,6 +111,9 @@ def delete_content_by_id(content_id):
 
 
 def get_content_file_by_id(content_id):
+    """
+    Generate a file with the information of a content
+    """
     content = get_content_by_id(content_id)
     if not content:
         return None
@@ -112,6 +124,9 @@ def get_content_file_by_id(content_id):
 
 
 def get_all_content_file():
+    """
+    Generate a file with information of all contents of the WS
+    """
     contents = Content.query.all()
     if not contents:
         return None

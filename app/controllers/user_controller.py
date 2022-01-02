@@ -30,13 +30,16 @@ def signin():
     user = user_services.autenticate_user(request.json)
     if user is None:
         return jsonify({'error': 'Bad request'}),400
-    # Generate token    
+    # Generate a user token    
     token = Auth.generate_token(user.id)
     return jsonify({'user-token': token}), 200
 
 
-@user_controller.route('/<id>/', methods=['GET'])
+@user_controller.route('/<id>/content/', methods=['GET'])
 def get_user_content_list(id):
+    """
+    Get a list of content created by the user
+    """
     contents = user_services.get_user_contents(id)
     if contents is None:
         return jsonify({'error_message': 'Bad request'}), 400

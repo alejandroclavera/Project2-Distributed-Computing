@@ -1,3 +1,5 @@
+from app.authentication.auth import Auth
+from app.models.user import User
 import pytest
 from app.models.content import Content
 from test import setup_app
@@ -46,10 +48,18 @@ def check_keys(content):
     return True
 
 
-def test_post__single_content(setup_app):
-    app = setup_app    
+@pytest.fixture
+def setup_test(setup_app):
+    app = setup_app
+    user = User('test_user', 'passw')
+    user.save()
+    headers = {'user-token': Auth.generate_token(user.id)}
+    return app, headers
+
+def test_post__single_content(setup_test):
+    app, headers = setup_test   
     with app.test_client() as client:
-        response = client.post(content_url_api, json=test_contets[0])
+        response = client.post(content_url_api, json=test_contets[0], headers=headers)
         json_content = response.get_json()
         # Check the response code
         assert response.status_code == 201
@@ -59,23 +69,23 @@ def test_post__single_content(setup_app):
         assert equals(test_contets[0], json_content)
 
 
-def test_bad_post_content(setup_app):
-    app = setup_app
+def test_bad_post_content(setup_test):
+    app, headers = setup_test
     with app.test_client() as client:
         for bad_content in bad_contents_post:
-            response = client.post(content_url_api, json=bad_content)
+            response = client.post(content_url_api, json=bad_content, headers=headers)
             # Check the status code
             assert response.status_code == 400
         # Check response without json body
-        response = client.post(content_url_api)
+        response = client.post(content_url_api, headers=headers)
         assert response.status_code == 400
 
 
-def test_multiple_post(setup_app):
-    app = setup_app
+def test_multiple_post(setup_test):
+    app, headers = setup_test
     with app.test_client() as client:
         for content_to_test in test_contets:
-            response = client.post(content_url_api, json=content_to_test)
+            response = client.post(content_url_api, json=content_to_test, headers=headers)
             assert response.status_code == 201
 
         # Check if all contets are registered in the ws
