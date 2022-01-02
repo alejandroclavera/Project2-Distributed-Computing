@@ -2,6 +2,7 @@ import pytest
 from test import setup_app
 from app.models import content
 from app.models.content import Content
+from app.models.user import User
 from app.models import db
 from . import content_url_api
 
@@ -35,9 +36,12 @@ def equals(content_1, content_2):
 def setup_test(setup_app):
     # Create app
     app = setup_app
+    user = User('test', 'passw')
+    user.save()
     content_list = []
     for content_to_add in test_contents:
-        content = Content(*content_to_add.values())
+        content_to_add['owner'] = user
+        content = Content(**content_to_add)
         content.save()
         content_list.append(content)
     return app, content_list
