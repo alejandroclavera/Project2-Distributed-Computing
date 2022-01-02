@@ -1,6 +1,5 @@
-from werkzeug.wrappers import response
-from app.models import user
 import pytest
+from app.models import user
 from app.models.user import User
 from app.models.content import Content
 from app.authentication.auth import Auth
@@ -26,7 +25,7 @@ test_update_info = [
     {'title': 'tilte modified', 'description': 'description modified'},
     {'title' : 'title4', 'description':'description4', 'keywords': [
         {'keyword':'testkey1', 'value':'test_value2'},
-        {'keyword':'testkey2', 'value': None},
+        {'keyword':'testkey2', 'value': None}, # To remove keyword
         {'keyword': 'testkey3', 'value': 'value3'}
     ]}
 ]
