@@ -26,6 +26,10 @@ def create_app(app_settings=None):
     app.register_blueprint(content_controller, url_prefix='/content/')
     app.register_blueprint(user_controller, url_prefix='/user/')
 
+    @app.errorhandler(Exception)
+    def error_handler(e):
+        return jsonify({'error': 'server error'}), 500
+
     @app.route('/')
     def api_welcome():
         return '<h1>MyTube API</h1>'
