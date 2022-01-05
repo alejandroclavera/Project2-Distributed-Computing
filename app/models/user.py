@@ -9,7 +9,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(), nullable=False)
     password = db.Column(db.String(), nullable=False)
-    contents = db.relationship('Content', cascade='all, delete, delete-orphan', backref='user', lazy=True)
+    contents = db.relationship('Content', passive_deletes=True, backref='user', lazy=True)
 
     def __init__(self, name, password):
         self.user_name = name

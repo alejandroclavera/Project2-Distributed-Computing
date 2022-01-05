@@ -8,8 +8,8 @@ class Content(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String())
     description = db.Column(db.String())
-    keywords = db.relationship('Keyword', cascade='all, delete, delete-orphan', backref='content', lazy=True)
-    owner = db.Column(db.Integer, db.ForeignKey('user.id'))
+    keywords = db.relationship('Keyword', backref='content', passive_deletes=True ,lazy=True)
+    owner = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
 
     __keywords__ = []
 
@@ -73,7 +73,7 @@ class Content(db.Model):
         return True
 
 class Keyword(db.Model):
-    owner = db.Column(db.Integer, db.ForeignKey('content.id'), primary_key=True)
+    owner = db.Column(db.Integer, db.ForeignKey('content.id', ondelete='CASCADE'), primary_key=True)
     keyword = db.Column(db.String(), primary_key=True)
     value = db.Column(db.String())
 
