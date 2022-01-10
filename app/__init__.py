@@ -30,6 +30,7 @@ def create_app(app_settings=None):
 
     @app.errorhandler(Exception)
     def error_handler(e):
+        print(e)
         return jsonify({'error': 'server error'}), 500
 
     @app.route('/')

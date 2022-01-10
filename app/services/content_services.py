@@ -1,9 +1,11 @@
 import json
 from io import BytesIO
-from ..models.content import Content, Keyword
+from app.models.content import Content, Keyword
 from flask import g
 from app.models.user import User
 from app.models.node import Node
+
+from app.models import content
 
 valid_search_args = ['title', 'description', 'keyword', 'value', 'partial']
 
@@ -135,3 +137,14 @@ def get_all_content_file():
     contents_file.write(json.dumps([content.serialize for content in contents]).encode())
     contents_file.seek(0)
     return contents_file
+
+
+def get_owner(content_id):
+    """
+    Get the user content owner 
+    """
+    content = get_content_by_id(content_id)
+    if not content:
+        return None, 404
+    return content.user.user_name, 200
+

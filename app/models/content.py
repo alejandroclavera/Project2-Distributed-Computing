@@ -18,7 +18,7 @@ class Content(db.Model):
         self.title = title
         self.description = description
         self.owner = owner.id
-        self.node_owner = node.id
+        self.node_owner = None if node is None else node.id
         self.__keywords__ = keywords
 
     def __update_keywords(self, keywords):

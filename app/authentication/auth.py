@@ -40,10 +40,10 @@ class Auth:
             response['data'] = {'user_id': payload['sub']}
             return response
         except jwt.ExpiredSignatureError:
-            response['error'] = {'message': 'token expired'}
+            response['error'] = {'error_message': 'token expired'}
             return response
         except jwt.InvalidTokenError:
-            response['error'] = {'message': 'Invalid token'}
+            response['error'] = {'error_message': 'Invalid token'}
             return response
     
     @staticmethod
@@ -55,19 +55,19 @@ class Auth:
         def decorated_auth(*args, **kargs):
             # Check the header contiain the user-token header
             if 'user-token' not in request.headers:
-                return jsonify({'error': 'Authentication token is not available, please login to get one'}), 401
+                return jsonify({'error_message': 'Authentication token is not available, please login to get one'}), 401
             
             # Get the user-token
             token = request.headers['user-token']
             data = Auth.decode_token(token)
             if 'error' in data:
-                return jsonify({'error': data['error']}), 400
+                return jsonify({'error_message': data['error']}), 400
 
             # Get the user
             user_id = data['data']['user_id']
             user = User.get_user_by_id(user_id)
             if not user:
-                return jsonify({'error': 'Invalid token, user does not exist'}), 400
+                return jsonify({'error_message': 'Invalid token, user does not exist'}), 400
             
             g.user = {'id': user_id}
             return func(*args, **kargs)

@@ -29,6 +29,7 @@ def setup_test(setup_app):
     headers = {'user-token': Auth.generate_token(user.id)}
     for content_to_add in test_contents:
         content_to_add['owner'] = user
+        content_to_add['node'] = None
         content = Content(**content_to_add)
         content.save()
         content_list.append(content)

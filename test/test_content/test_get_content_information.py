@@ -1,3 +1,4 @@
+from werkzeug.wrappers import response
 import pytest
 from test import setup_app
 from app.models import content
@@ -41,6 +42,7 @@ def setup_test(setup_app):
     content_list = []
     for content_to_add in test_contents:
         content_to_add['owner'] = user
+        content_to_add['node'] = None
         content = Content(**content_to_add)
         content.save()
         content_list.append(content)
@@ -175,6 +177,18 @@ def test_bad_partial_search(setup_test):
     # Check not description arg
     response = client.get(content_url_api + '?partial=true')
     assert response.status_code == 400
+
+
+def test_owner(setup_test):
+    client, contents = setup_test
+
+    for content in contents:
+        response = client.get(f'{content_url_api}{content.id}/user/')
+        assert response.status_code == 200
+        response_json = response.get_json()
+        assert 'owner' in response_json
+        assert response_json['owner'] == 'test'
+
     
        
 

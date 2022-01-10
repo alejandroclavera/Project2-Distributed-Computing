@@ -8,7 +8,6 @@ content_controller = Blueprint('content_controller', __name__)
 
 @content_controller.route('/', methods=['GET'])
 def find_content():
-    print('enre')
     contents = content_services.find_content(request.args)
     if contents is None:
         return jsonify({'error_message': 'Bad request'}), 400
@@ -60,10 +59,18 @@ def delete_content(id):
     """
     status_code = content_services.delete_content_by_id(id)
     if status_code == 404:
-        return jsonify({'error_message': f'not found the content with the id {id}'}), 404
+        return jsonify({'error_message': f'not found the content with id {id}'}), 404
     elif status_code == 403:
         return jsonify({'error_message': f'can\'t modify the content of other user'}), 403
     return jsonify({'message': 'Content deleted'}), 200
+
+
+@content_controller.route('/<id>/user/', methods=['GET'])    
+def get_user_owner(id):
+    owner, status_code = content_services.get_owner(id)
+    if status_code == 404:
+        return jsonify({'error_message': f'not found the content with id {id}'}), 404
+    return jsonify({'owner': owner}), 200
 
 
 @content_controller.route('/<id>/download', methods=['GET'])
@@ -73,7 +80,7 @@ def download_content_info(id):
     """
     content_to_download = content_services.get_content_file_by_id(id)
     if not content_to_download:
-        return jsonify({'error_message': f'not found the content for download with the id {id}'}), 404
+        return jsonify({'error_message': f'not found the content for download with id {id}'}), 404
     try:
         return send_file(content_to_download, download_name=f'{id}.json', as_attachment=True), 200
     except Exception as e:
@@ -91,4 +98,4 @@ def download_all_content_info():
     try:
         return send_file(content_to_download, download_name='contents.json', as_attachment=True), 200
     except Exception as e:
-        jsonify({'message': 'Content download'}), 500
+        jsonify({'error_message': 'Error to download the contend'}), 500

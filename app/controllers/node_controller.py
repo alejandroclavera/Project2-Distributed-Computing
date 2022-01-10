@@ -4,7 +4,7 @@ from app.services import node_services
 
 node_controller = Blueprint('node_controller', __name__)
 
-@node_controller.route('/register', methods=['POST'])
+@node_controller.route('/register/', methods=['POST'])
 def register_node():
     """
     Register a new node in a WS

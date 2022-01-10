@@ -59,6 +59,7 @@ def setup_test(setup_app):
     content_list = []
     for content_to_add in test_contents:
         content_to_add['owner'] = user
+        content_to_add['node'] = None
         content = Content(**content_to_add)
         content.save()
         user.add_content(content)
