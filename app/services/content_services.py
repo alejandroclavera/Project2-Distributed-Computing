@@ -3,6 +3,7 @@ from io import BytesIO
 from ..models.content import Content, Keyword
 from flask import g
 from app.models.user import User
+from app.models.node import Node
 
 valid_search_args = ['title', 'description', 'keyword', 'value', 'partial']
 
@@ -65,12 +66,13 @@ def post_new_content(request_form):
     title = request_form['title']
     description = request_form['description']
     user = User.get_user_by_id(g.user.get('id'))
+    node = None if 'node' not in request_form else Node.query.get(request_form['node'])
     if 'keywords' in request_form:
         if not Content.are_valid_keywords(request_form['keywords']):
             return None
-        content = Content(title, description, user, keywords=request_form['keywords'])
+        content = Content(title, description, user, node, keywords=request_form['keywords'])
     else:
-        content = Content(title, description, user)
+        content = Content(title, description, user, node)
     # Store the new content in the database
     content.save()
     return content

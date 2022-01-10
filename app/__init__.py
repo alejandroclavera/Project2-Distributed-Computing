@@ -5,6 +5,7 @@ from flask_migrate import Migrate, migrate
 from .models import db
 from .controllers.content_controller import content_controller
 from .controllers.user_controller import user_controller
+from .controllers.node_controller import node_controller 
 
 migrate = Migrate()
 
@@ -25,6 +26,7 @@ def create_app(app_settings=None):
     # Registry the controllers
     app.register_blueprint(content_controller, url_prefix='/content/')
     app.register_blueprint(user_controller, url_prefix='/user/')
+    app.register_blueprint(node_controller, url_prefix='/node/')
 
     @app.errorhandler(Exception)
     def error_handler(e):

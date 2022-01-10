@@ -8,6 +8,7 @@ content_controller = Blueprint('content_controller', __name__)
 
 @content_controller.route('/', methods=['GET'])
 def find_content():
+    print('enre')
     contents = content_services.find_content(request.args)
     if contents is None:
         return jsonify({'error_message': 'Bad request'}), 400

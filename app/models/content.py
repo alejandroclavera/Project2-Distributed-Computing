@@ -10,13 +10,15 @@ class Content(db.Model):
     description = db.Column(db.String())
     keywords = db.relationship('Keyword', backref='content', passive_deletes=True ,lazy=True)
     owner = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    node_owner = db.Column(db.Integer, db.ForeignKey('node.id', ondelete='CASCADE'))
 
     __keywords__ = []
 
-    def __init__(self, title, description, owner, keywords=[]):
+    def __init__(self, title, description, owner, node, keywords=[]):
         self.title = title
         self.description = description
         self.owner = owner.id
+        self.node_owner = node.id
         self.__keywords__ = keywords
 
     def __update_keywords(self, keywords):
@@ -58,7 +60,8 @@ class Content(db.Model):
             'id': self.id,
             'title': self.title,
             'description': self.description,
-            'keywords': [keyword.serialize for keyword in self.keywords]
+            'keywords': [keyword.serialize for keyword in self.keywords],
+            'node': self.node_owner
         }
 
     @staticmethod
