@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+
+    db:
+        container_name: pg_container
+        image: postgres
+        restart: always
+        environment:
+            DATABASE_HOST: 172.0.0.1
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+            POSTGRES_DB: mytube_db
+        volumes:
+            - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+            - ./postgres-data:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+              
+    pgadmin:
+            container_name: pgadmin_4
+            image: dpage/pgadmin4
+            restart: always
+            environment:
+                PGADMIN_DEFAULT_EMAIL: admin@admin.com
+                PGADMIN_DEFAULT_PASSWORD: admin
+            volumes:
+                - ./pgadmin-data:/var/lib/pgadmin
+            ports:
+                - "5050:80"
+    
+
