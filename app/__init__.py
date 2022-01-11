@@ -2,6 +2,7 @@ import os
 from .config import app_config, BASE_URL
 from flask import Flask, jsonify, request
 from flask_migrate import Migrate, migrate
+from flask_cors import CORS
 from .models import db
 from .controllers.content_controller import content_controller
 from .controllers.user_controller import user_controller
@@ -11,6 +12,7 @@ migrate = Migrate()
 
 def create_app(app_settings=None):
     app = Flask(__name__)
+    CORS(app)
 
     # Load configurations
     if not app_settings:
