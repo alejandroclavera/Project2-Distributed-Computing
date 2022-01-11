@@ -9,7 +9,7 @@ def register_node():
     """
     Register a new node in a WS
     """
-    node_info, status_code = node_services.register_node(request.json)
+    node_info, status_code = node_services.register_node()
     if status_code == 400:
         return jsonify({'error': 'BAD REQUEST'}), 400
     else:
